@@ -5,6 +5,8 @@ import { AttendanceChart } from './AttendanceChart';
 import { AttendanceTable } from './AttendanceTable';
 import { SearchStudent } from './SearchStudent';
 import { MarkAttendance } from './MarkAttendance';
+import { MiniAttendanceChart } from './MiniAttendanceChart';
+import { AttendanceCalendar } from './AttendanceCalendar';
 import { useToast } from '@/hooks/use-toast';
 import { BarChart3, LogOut, Users, Camera, TrendingUp } from 'lucide-react';
 
@@ -24,6 +26,7 @@ export const Dashboard = ({ onLogout }: DashboardProps) => {
   const [attendanceData, setAttendanceData] = useState<AttendanceRecord[]>([]);
   const [allAttendanceData, setAllAttendanceData] = useState<AttendanceRecord[]>([]);
   const [loading, setLoading] = useState(false);
+  const [calendarData, setCalendarData] = useState<AttendanceRecord[] | null>(null);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -32,31 +35,21 @@ export const Dashboard = ({ onLogout }: DashboardProps) => {
 
   const loadAllAttendance = async () => {
     setLoading(true);
-    
     try {
       const apiUrl = '/api/Attendance';
       const response = await fetch(apiUrl);
-      
       if (!response.ok) {
         throw new Error('Failed to fetch attendance data');
       }
-
       const data = await response.json();
-      console.log('API Response:', data);
-
-      // Process the API response data
       setAttendanceData(data);
       setAllAttendanceData(data);
-      
       toast({
         title: "Data Loaded",
         description: `Loaded ${data.length} attendance records`,
       });
-
     } catch (error) {
-      console.error('Error fetching attendance:', error);
       setAttendanceData([]);
-      
       toast({
         title: "Load Error",
         description: "Could not fetch attendance data. Please try again.",
@@ -69,29 +62,34 @@ export const Dashboard = ({ onLogout }: DashboardProps) => {
 
   const handleSearch = async (rollNo: string) => {
     if (!rollNo.trim()) {
-      // If search is empty, show all data
       setAttendanceData(allAttendanceData);
+      setCalendarData(null);
       return;
     }
-    
-    // Filter existing data by roll number
-    const filteredData = allAttendanceData.filter(record => 
-      record.rollNo.toString().includes(rollNo)
-    );
-    
-    setAttendanceData(filteredData);
-    
-    if (filteredData.length > 0) {
+    setLoading(true);
+    try {
+      const response = await fetch(`https://3r8gtt2w-7174.inc1.devtunnels.ms/api/Attendance/${rollNo}`);
+      const data = await response.json();
+      if (response.ok && Array.isArray(data) && data.length > 0) {
+        setCalendarData(data);
+        setAttendanceData(data);
+      } else {
+        setCalendarData(null);
+        toast({
+          title: "No Results",
+          description: "No attendance records found for this roll number.",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      setCalendarData(null);
       toast({
-        title: "Search Complete",
-        description: `Found ${filteredData.length} attendance records for roll number ${rollNo}`,
-      });
-    } else {
-      toast({
-        title: "No Results",
-        description: "No attendance records found for this roll number.",
+        title: "Error",
+        description: "Could not fetch student attendance.",
         variant: "destructive",
       });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -114,29 +112,32 @@ export const Dashboard = ({ onLogout }: DashboardProps) => {
               Manage and track student attendance with ease
             </p>
           </div>
-          <Button
-            onClick={onLogout}
-            variant="outline"
-            className="flex items-center gap-2 hover:bg-destructive/10 hover:border-destructive/30 hover:text-destructive transition-smooth"
-          >
-            <LogOut className="h-4 w-4" />
-            Logout
-          </Button>
+          <div className="flex gap-2">
+            <Button 
+              onClick={loadAllAttendance}
+              disabled={loading}
+              className="gradient-primary hover:opacity-90 transition-smooth shadow-card text-white font-medium px-6"
+            >
+              {loading ? 'Loading...' : 'Refresh Data'}
+            </Button>
+            <Button
+              onClick={onLogout}
+              variant="outline"
+              className="flex items-center gap-2 hover:bg-destructive/10 hover:border-destructive/30 hover:text-destructive transition-smooth"
+            >
+              <LogOut className="h-4 w-4" />
+              Logout
+            </Button>
+          </div>
         </div>
 
         {/* Load Data and Search Section */}
         <div className="flex gap-4 items-end">
-          <div className="flex-1">
+          <div className="w-full">
             <SearchStudent onSearch={handleSearch} loading={loading} />
           </div>
-          <Button 
-            onClick={loadAllAttendance}
-            disabled={loading}
-            className="gradient-primary hover:opacity-90 transition-smooth shadow-card text-white font-medium px-6"
-          >
-            {loading ? 'Loading...' : 'Refresh Data'}
-          </Button>
         </div>
+
 
         {/* Statistics Cards */}
         {attendanceData.length > 0 && (
@@ -191,42 +192,52 @@ export const Dashboard = ({ onLogout }: DashboardProps) => {
           </div>
         )}
 
-        {/* Chart Section */}
-        <Card className="gradient-card shadow-card border-0">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <BarChart3 className="h-5 w-5 text-primary" />
-              Attendance Visualization
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <AttendanceChart data={attendanceData} />
-          </CardContent>
-        </Card>
-
-        {/* Two Column Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Attendance Table */}
-          <div className="lg:col-span-2">
+        {/* Chart + Mark Attendance Side by Side */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+          {/* Chart Section - take 7 columns */}
+          <div className="lg:col-span-7">
             <Card className="gradient-card shadow-card border-0">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <Users className="h-5 w-5 text-primary" />
-                  Attendance Records
+                  <BarChart3 className="h-5 w-5 text-primary" />
+                  Attendance Visualization
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <AttendanceTable data={attendanceData} />
+                <div className="rounded-xl bg-gradient-to-br from-white/80 to-muted/40 p-4 shadow-lg border border-border">
+                  <AttendanceChart data={attendanceData} />
+                </div>
               </CardContent>
             </Card>
           </div>
 
-          {/* Mark Attendance */}
-          <div className="lg:col-span-1">
+          {/* Mark Attendance - take 5 columns, with mini chart below */}
+          <div className="lg:col-span-5 flex flex-col gap-4">
             <MarkAttendance />
+            <MiniAttendanceChart data={attendanceData} />
           </div>
         </div>
+
+        {/* Attendance Table - full width below chart and mark attendance */}
+        <div className="w-full mt-6">
+          <Card className="gradient-card shadow-card border-0">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Users className="h-5 w-5 text-primary" />
+                Attendance Records
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <AttendanceTable data={attendanceData} />
+            </CardContent>
+          </Card>
+        </div>
+        
+          {/* Calendar below table only if user searched for a student */}
+          {Array.isArray(calendarData) && calendarData.length > 0 && (
+            <AttendanceCalendar data={calendarData} />
+          )}
       </div>
     </div>
   );
-};
+}
