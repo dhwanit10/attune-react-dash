@@ -1,73 +1,96 @@
-# Welcome to your Lovable project
+🛡️ Attendance System – Admin Panel (Frontend)
 
-## Project info
+This is the Admin Panel frontend for our Attendance System.
+It’s built with Vite + React + TypeScript and connects to the same C#/.NET backend API as the student-facing app.
 
-**URL**: https://lovable.dev/projects/549b81ee-dd85-4681-a223-3c2044f76f4c
+🚀 Overview
 
-## How can I edit this code?
+The Admin Panel enables administrators and faculty to monitor and manage attendance across classes and students.
+It offers analytics, student-level data, and manual attendance control.
 
-There are several ways of editing your application.
+🌟 Key Features
 
-**Use Lovable**
+Class-Wide Analytics
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/549b81ee-dd85-4681-a223-3c2044f76f4c) and start prompting.
+View real-time attendance statistics for the whole class.
 
-Changes made via Lovable will be committed automatically to this repo.
+See daily, weekly, or monthly summaries.
 
-**Use your preferred IDE**
+Visual charts and graphs for quick insights.
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+Student-Level Details
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+Search or filter students to view their attendance history.
 
-Follow these steps:
+Drill down into a specific student’s attendance records.
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+Manual Attendance Management
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+Admin can mark Present or Absent for any student directly.
 
-# Step 3: Install the necessary dependencies.
-npm i
+Override or correct attendance when needed.
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+Clean, Responsive UI built with React, Vite and TypeScript.
+
+Secure API Integration with the same C# backend used by the student app.
+
+🛠️ Tech Stack
+Layer	Technology
+Frontend	Vite + React + TypeScript
+Charts/Analytics	(e.g. Recharts / Chart.js)
+Backend API	C# / ASP.NET Core
+Deployment	Vercel (Frontend) + (your backend host)
+📦 Getting Started
+1. Clone the repo
+git clone https://github.com/yourusername/your-adminpanel-repo.git
+cd your-adminpanel-repo
+
+2. Install dependencies
+npm install
+# or
+yarn install
+
+3. Configure API URL
+
+Create a .env file (if not already present):
+
+VITE_API_URL=https://your-backend-url/api
+
+4. Run locally
 npm run dev
-```
 
-**Edit a file directly in GitHub**
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+Access at http://localhost:8080
+.
 
-**Use GitHub Codespaces**
+5. Build for production
+npm run build
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
 
-## What technologies are used for this project?
+Deploy the dist folder to Vercel.
 
-This project is built with:
+🖼️ Screens / Workflow
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+Dashboard: Overview of attendance stats for all classes.
 
-## How can I deploy this project?
+Analytics Page: Graphs and charts (daily/weekly/monthly attendance).
 
-Simply open [Lovable](https://lovable.dev/projects/549b81ee-dd85-4681-a223-3c2044f76f4c) and click on Share -> Publish.
+Student Management: Search student → view details → mark present/absent.
 
-## Can I connect a custom domain to my Lovable project?
+Manual Override: Admin can update attendance records instantly.
 
-Yes, you can!
+🤝 Contributing
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+Fork the repo
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+Create a new branch: git checkout -b feature-name
+
+Commit your changes: git commit -m "Add feature"
+
+Push to branch: git push origin feature-name
+
+Open a Pull Request
+
+📄 License
+
+This project is licensed under the MIT License.
