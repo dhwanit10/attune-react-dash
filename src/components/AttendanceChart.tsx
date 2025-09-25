@@ -20,10 +20,11 @@ ChartJS.register(
 );
 
 interface AttendanceRecord {
-  name: string;
-  rollNumber: string;
-  date: string;
-  isPresent: boolean;
+  attendanceID: number;
+  rollNo: number;
+  attendanceDate: string;
+  status: 'present' | 'absent' | 'holiday';
+  student: any;
 }
 
 interface AttendanceChartProps {
@@ -65,7 +66,8 @@ export const AttendanceChart = ({ data }: AttendanceChartProps) => {
         displayColors: false,
         callbacks: {
           label: function(context: any) {
-            return context.raw === 1 ? 'Present' : 'Absent';
+            const statusMap: { [key: number]: string } = { 1: 'Present', 0: 'Absent', 0.5: 'Holiday' };
+            return statusMap[context.raw] || '';
           }
         }
       },
@@ -77,7 +79,8 @@ export const AttendanceChart = ({ data }: AttendanceChartProps) => {
         ticks: {
           stepSize: 1,
           callback: function(value: any) {
-            return value === 1 ? 'Present' : value === 0 ? 'Absent' : '';
+            const statusMap: { [key: number]: string } = { 1: 'Present', 0: 'Absent', 0.5: 'Holiday' };
+            return statusMap[value] || '';
           },
           color: 'hsl(var(--muted-foreground))',
           font: {
@@ -107,24 +110,28 @@ export const AttendanceChart = ({ data }: AttendanceChartProps) => {
   };
 
   const chartData = {
-    labels: data.map(d => new Date(d.date).toLocaleDateString('en-US', { 
+    labels: data.map(d => new Date(d.attendanceDate).toLocaleDateString('en-US', { 
       month: 'short', 
       day: 'numeric' 
     })),
     datasets: [
       {
         label: 'Attendance Status',
-        data: data.map(d => d.isPresent ? 1 : 0),
-        backgroundColor: data.map(d => 
-          d.isPresent 
-            ? 'hsl(var(--success))' 
-            : 'hsl(var(--destructive))'
-        ),
-        borderColor: data.map(d => 
-          d.isPresent 
-            ? 'hsl(var(--success))' 
-            : 'hsl(var(--destructive))'
-        ),
+        data: data.map(d => {
+          if (d.status === 'present') return 1;
+          if (d.status === 'absent') return 0;
+          return 0.5; // holiday
+        }),
+        backgroundColor: data.map(d => {
+          if (d.status === 'present') return 'hsl(var(--success))';
+          if (d.status === 'absent') return 'hsl(var(--destructive))';
+          return 'hsl(var(--warning))'; // holiday color
+        }),
+        borderColor: data.map(d => {
+          if (d.status === 'present') return 'hsl(var(--success))';
+          if (d.status === 'absent') return 'hsl(var(--destructive))';
+          return 'hsl(var(--warning))'; // holiday color
+        }),
         borderWidth: 2,
         borderRadius: 4,
         borderSkipped: false,

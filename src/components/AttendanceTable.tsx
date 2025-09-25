@@ -10,10 +10,11 @@ import { Badge } from '@/components/ui/badge';
 import { CheckCircle, XCircle, Calendar, User, Hash } from 'lucide-react';
 
 interface AttendanceRecord {
-  name: string;
-  rollNumber: string;
-  date: string;
-  isPresent: boolean;
+  attendanceID: number;
+  rollNo: number;
+  attendanceDate: string;
+  status: 'present' | 'absent' | 'holiday';
+  student: any;
 }
 
 interface AttendanceTableProps {
@@ -61,30 +62,35 @@ export const AttendanceTable = ({ data }: AttendanceTableProps) => {
         </TableHeader>
         <TableBody>
           {data.map((record, index) => (
-            <TableRow key={index} className="hover:bg-muted/30 transition-smooth border-b border-border/50">
+            <TableRow key={record.attendanceID} className="hover:bg-muted/30 transition-smooth border-b border-border/50">
               <TableCell className="font-medium text-foreground">
-                {record.name}
+                {record.student?.name || `Student ${record.rollNo}`}
               </TableCell>
               <TableCell className="text-muted-foreground font-mono">
-                {record.rollNumber}
+                {record.rollNo}
               </TableCell>
               <TableCell className="text-muted-foreground">
-                {new Date(record.date).toLocaleDateString('en-US', {
+                {new Date(record.attendanceDate).toLocaleDateString('en-US', {
                   year: 'numeric',
                   month: 'short',
                   day: 'numeric',
                 })}
               </TableCell>
               <TableCell className="text-center">
-                {record.isPresent ? (
+                {record.status === 'present' ? (
                   <Badge variant="default" className="bg-success hover:bg-success/90 text-success-foreground font-medium">
                     <CheckCircle className="w-3 h-3 mr-1" />
                     Present
                   </Badge>
-                ) : (
+                ) : record.status === 'absent' ? (
                   <Badge variant="destructive" className="font-medium">
                     <XCircle className="w-3 h-3 mr-1" />
                     Absent
+                  </Badge>
+                ) : (
+                  <Badge variant="secondary" className="font-medium">
+                    <Calendar className="w-3 h-3 mr-1" />
+                    Holiday
                   </Badge>
                 )}
               </TableCell>

@@ -9,10 +9,11 @@ import { useToast } from '@/hooks/use-toast';
 import { BarChart3, LogOut, Users, Camera, TrendingUp } from 'lucide-react';
 
 interface AttendanceRecord {
-  name: string;
-  rollNumber: string;
-  date: string;
-  isPresent: boolean;
+  attendanceID: number;
+  rollNo: number;
+  attendanceDate: string;
+  status: 'present' | 'absent' | 'holiday';
+  student: any;
 }
 
 interface DashboardProps {
@@ -75,7 +76,7 @@ export const Dashboard = ({ onLogout }: DashboardProps) => {
     
     // Filter existing data by roll number
     const filteredData = allAttendanceData.filter(record => 
-      record.rollNumber.toLowerCase().includes(rollNo.toLowerCase())
+      record.rollNo.toString().includes(rollNo)
     );
     
     setAttendanceData(filteredData);
@@ -94,9 +95,11 @@ export const Dashboard = ({ onLogout }: DashboardProps) => {
     }
   };
 
-  const presentCount = attendanceData.filter(record => record.isPresent).length;
-  const absentCount = attendanceData.length - presentCount;
-  const attendancePercentage = attendanceData.length > 0 ? Math.round((presentCount / attendanceData.length) * 100) : 0;
+  const presentCount = attendanceData.filter(record => record.status === 'present').length;
+  const absentCount = attendanceData.filter(record => record.status === 'absent').length;
+  const holidayCount = attendanceData.filter(record => record.status === 'holiday').length;
+  const workingDays = attendanceData.length - holidayCount;
+  const attendancePercentage = workingDays > 0 ? Math.round((presentCount / workingDays) * 100) : 0;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background to-muted p-4">
@@ -137,7 +140,7 @@ export const Dashboard = ({ onLogout }: DashboardProps) => {
 
         {/* Statistics Cards */}
         {attendanceData.length > 0 && (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <Card className="gradient-card shadow-card border-0">
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
@@ -158,6 +161,18 @@ export const Dashboard = ({ onLogout }: DashboardProps) => {
                     <p className="text-2xl font-bold text-success">{presentCount}</p>
                   </div>
                   <TrendingUp className="h-8 w-8 text-success" />
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="gradient-card shadow-card border-0">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">Absent Days</p>
+                    <p className="text-2xl font-bold text-destructive">{absentCount}</p>
+                  </div>
+                  <TrendingUp className="h-8 w-8 text-destructive" />
                 </div>
               </CardContent>
             </Card>
