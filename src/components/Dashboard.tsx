@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { AttendanceChart } from './AttendanceChart';
@@ -21,15 +21,19 @@ interface DashboardProps {
 
 export const Dashboard = ({ onLogout }: DashboardProps) => {
   const [attendanceData, setAttendanceData] = useState<AttendanceRecord[]>([]);
+  const [allAttendanceData, setAllAttendanceData] = useState<AttendanceRecord[]>([]);
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
-  const handleSearch = async (rollNo: string) => {
+  useEffect(() => {
+    loadAllAttendance();
+  }, []);
+
+  const loadAllAttendance = async () => {
     setLoading(true);
     
     try {
-      // Using the API from the original code
-      const apiUrl = `https://3r8gtt2w-7174.inc1.devtunnels.ms/api/Attendance/${rollNo}`;
+      const apiUrl = 'https://3r8gtt2w-7174.inc1.devtunnels.ms/api/Attendance';
       const response = await fetch(apiUrl);
       
       if (!response.ok) {
@@ -39,46 +43,13 @@ export const Dashboard = ({ onLogout }: DashboardProps) => {
       const data = await response.json();
       console.log('API Response:', data);
 
-      // For now, we'll use mock data since the API might not be available
-      // In a real scenario, you would process the actual API response
-      const mockData: AttendanceRecord[] = [
-        {
-          name: 'John Doe',
-          rollNumber: rollNo,
-          date: '2024-01-15',
-          isPresent: true,
-        },
-        {
-          name: 'John Doe',
-          rollNumber: rollNo,
-          date: '2024-01-16',
-          isPresent: false,
-        },
-        {
-          name: 'John Doe',
-          rollNumber: rollNo,
-          date: '2024-01-17',
-          isPresent: true,
-        },
-        {
-          name: 'John Doe',
-          rollNumber: rollNo,
-          date: '2024-01-18',
-          isPresent: true,
-        },
-        {
-          name: 'John Doe',
-          rollNumber: rollNo,
-          date: '2024-01-19',
-          isPresent: false,
-        },
-      ];
-
-      setAttendanceData(mockData);
+      // Process the API response data
+      setAttendanceData(data);
+      setAllAttendanceData(data);
       
       toast({
-        title: "Search Complete",
-        description: `Found ${mockData.length} attendance records for roll number ${rollNo}`,
+        title: "Data Loaded",
+        description: `Loaded ${data.length} attendance records`,
       });
 
     } catch (error) {
@@ -86,12 +57,40 @@ export const Dashboard = ({ onLogout }: DashboardProps) => {
       setAttendanceData([]);
       
       toast({
-        title: "Search Error",
-        description: "Could not fetch attendance data. Please check the roll number and try again.",
+        title: "Load Error",
+        description: "Could not fetch attendance data. Please try again.",
         variant: "destructive",
       });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleSearch = async (rollNo: string) => {
+    if (!rollNo.trim()) {
+      // If search is empty, show all data
+      setAttendanceData(allAttendanceData);
+      return;
+    }
+    
+    // Filter existing data by roll number
+    const filteredData = allAttendanceData.filter(record => 
+      record.rollNumber.toLowerCase().includes(rollNo.toLowerCase())
+    );
+    
+    setAttendanceData(filteredData);
+    
+    if (filteredData.length > 0) {
+      toast({
+        title: "Search Complete",
+        description: `Found ${filteredData.length} attendance records for roll number ${rollNo}`,
+      });
+    } else {
+      toast({
+        title: "No Results",
+        description: "No attendance records found for this roll number.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -122,8 +121,19 @@ export const Dashboard = ({ onLogout }: DashboardProps) => {
           </Button>
         </div>
 
-        {/* Search Section */}
-        <SearchStudent onSearch={handleSearch} loading={loading} />
+        {/* Load Data and Search Section */}
+        <div className="flex gap-4 items-end">
+          <div className="flex-1">
+            <SearchStudent onSearch={handleSearch} loading={loading} />
+          </div>
+          <Button 
+            onClick={loadAllAttendance}
+            disabled={loading}
+            className="gradient-primary hover:opacity-90 transition-smooth shadow-card text-white font-medium px-6"
+          >
+            {loading ? 'Loading...' : 'Refresh Data'}
+          </Button>
+        </div>
 
         {/* Statistics Cards */}
         {attendanceData.length > 0 && (
