@@ -33,7 +33,7 @@ export const Dashboard = ({ onLogout }: DashboardProps) => {
     setLoading(true);
     
     try {
-      const apiUrl = 'https://3r8gtt2w-7174.inc1.devtunnels.ms/api/Attendance';
+      const apiUrl = '/api/Attendance';
       const response = await fetch(apiUrl);
       
       if (!response.ok) {
