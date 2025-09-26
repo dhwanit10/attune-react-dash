@@ -25,7 +25,7 @@ export const LoginForm = ({ onLogin }: LoginFormProps) => {
     // Simulate API call delay
     await new Promise(resolve => setTimeout(resolve, 1000));
 
-  if (email === 'admin123@gmail.com' && password === '123456') {
+  if (email === 'admin123@gmail.com' && password === 'admin@1234') {
       onLogin();
     } else {
       setError('Invalid email or password. Please try again.');
@@ -59,7 +59,7 @@ export const LoginForm = ({ onLogin }: LoginFormProps) => {
                   <Input
                     id="email"
                     type="email"
-                    placeholder="admin123@gmail.com"
+                    placeholder="enter your email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     className="pl-10 transition-smooth focus:shadow-glow"
@@ -112,7 +112,7 @@ export const LoginForm = ({ onLogin }: LoginFormProps) => {
             <div className="mt-6 text-center text-sm text-muted-foreground">
               <p>Demo credentials:</p>
               <p className="font-mono text-xs mt-1">
-                admin123@gmail.com / 123456
+                admin123@gmail.com / admin@1234
               </p>
             </div>
           </CardContent>
